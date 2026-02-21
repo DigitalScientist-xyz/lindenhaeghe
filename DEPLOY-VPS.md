@@ -30,20 +30,45 @@ sudo apt-get install -y nodejs
 
 ### Clone and build the app
 
-```bash
-cd /var/www   # or wherever you keep sites
-sudo mkdir -p /var/www
-sudo chown $USER:$USER /var/www
-cd /var/www
+GitHub no longer accepts account passwords. Use one of these:
 
+**Option A – Repo is public:** clone with HTTPS (no login needed):
+
+```bash
+cd /var/www
 git clone https://github.com/DigitalScientist-xyz/lindenhaeghe.git
 cd lindenhaeghe
+```
 
+**Option B – Repo is private, use a Personal Access Token (PAT):**
+
+1. On GitHub: **Settings → Developer settings → Personal access tokens → Tokens (classic)**. Generate a token with `repo` scope.
+2. On the VPS, clone using the token (replace `YOUR_GITHUB_TOKEN` with the token):
+
+```bash
+cd /var/www
+git clone https://YOUR_GITHUB_TOKEN@github.com/DigitalScientist-xyz/lindenhaeghe.git
+cd lindenhaeghe
+```
+
+**Option C – Repo is private, use SSH:** add the VPS SSH key to your GitHub account, then:
+
+```bash
+cd /var/www
+git clone git@github.com:DigitalScientist-xyz/lindenhaeghe.git
+cd lindenhaeghe
+```
+
+Then install and build:
+
+```bash
 npm ci
 npm run build
 ```
 
 ### Run with PM2 (recommended)
+
+This app runs on **port 3001** (so it doesn’t clash with anything on 3000).
 
 ```bash
 sudo npm install -g pm2
@@ -52,14 +77,12 @@ pm2 save
 pm2 startup   # follow the command it prints to enable on boot
 ```
 
-Or without the config file: `pm2 start npm --name "lindenhaeghe" -- start`
-
-The app will listen on **port 3000** by default.
+Or without the config file: `PORT=3001 pm2 start npm --name "lindenhaeghe" -- start`
 
 ### Or run without PM2 (foreground)
 
 ```bash
-npm start
+PORT=3001 npm start
 ```
 
 ---
@@ -86,7 +109,7 @@ server {
     listen 80;
     server_name lindenhaeghe.troycollins.nl;
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -137,7 +160,7 @@ pm2 restart lindenhaeghe   # or: pm2 restart ecosystem.config.cjs
 - [ ] DNS: `lindenhaeghe.troycollins.nl` → VPS IP (or CNAME)
 - [ ] VPS: Node 18+, clone repo, `npm ci && npm run build`
 - [ ] PM2: `pm2 start npm --name "lindenhaeghe" -- start` and `pm2 save` / `pm2 startup`
-- [ ] Nginx: config for `lindenhaeghe.troycollins.nl` → `http://127.0.0.1:3000`, enable and reload
+- [ ] Nginx: config for `lindenhaeghe.troycollins.nl` → `http://127.0.0.1:3001`, enable and reload
 - [ ] HTTPS: `certbot --nginx -d lindenhaeghe.troycollins.nl`
 
 After DNS propagates (a few minutes), open **https://lindenhaeghe.troycollins.nl** in a browser.
