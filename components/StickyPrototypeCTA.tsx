@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { PrototypeLightbox } from "@/components/PrototypeLightbox";
 
 const GITHUB_ICON = (
   <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -33,6 +34,7 @@ type StickyPrototypeCTAProps = {
 
 export function StickyPrototypeCTA({ href = "#", githubHref }: StickyPrototypeCTAProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [prototypeLightboxOpen, setPrototypeLightboxOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -66,15 +68,14 @@ export function StickyPrototypeCTA({ href = "#", githubHref }: StickyPrototypeCT
             {GITHUB_ICON}
           </Link>
         )}
-        <Link
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => setPrototypeLightboxOpen(true)}
           className={`${btnBase} px-4 py-2.5 text-sm font-medium`}
         >
           Open prototype
           <span aria-hidden>↗</span>
-        </Link>
+        </button>
       </div>
 
       {/* Mobile: single Actions button with dropdown */}
@@ -108,20 +109,29 @@ export function StickyPrototypeCTA({ href = "#", githubHref }: StickyPrototypeCT
                 <span>View on GitHub</span>
               </Link>
             )}
-            <Link
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               role="menuitem"
               className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              onClick={() => setMobileOpen(false)}
+              onClick={() => {
+                setMobileOpen(false);
+                setPrototypeLightboxOpen(true);
+              }}
             >
               <span aria-hidden>↗</span>
               <span>Open prototype</span>
-            </Link>
+            </button>
           </div>
         )}
       </div>
+      {href !== "#" && (
+        <PrototypeLightbox
+          open={prototypeLightboxOpen}
+          onClose={() => setPrototypeLightboxOpen(false)}
+          src={href}
+          title="Content Engine prototype"
+        />
+      )}
     </div>
   );
 }

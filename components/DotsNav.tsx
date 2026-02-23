@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
+import { PrototypeLightbox } from "@/components/PrototypeLightbox";
 
 const MENU_ITEMS: { id: string; label: string }[] = [
   { id: "hero", label: "Overview" },
@@ -53,6 +54,7 @@ type DotsNavProps = {
 export function DotsNav({ prototypeHref = "#", githubHref }: DotsNavProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [ctaOpen, setCtaOpen] = useState(false);
+  const [prototypeLightboxOpen, setPrototypeLightboxOpen] = useState(false);
   const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -140,15 +142,14 @@ export function DotsNav({ prototypeHref = "#", githubHref }: DotsNavProps) {
                 {GITHUB_ICON}
               </Link>
             )}
-            <Link
-              href={prototypeHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => setPrototypeLightboxOpen(true)}
               className={`${ctaBtnBase} px-3 py-2 text-sm font-medium hidden sm:inline-flex`}
             >
               Open prototype
               <span aria-hidden>↗</span>
-            </Link>
+            </button>
 
             {/* Mobile: single dropdown */}
             <div className="sm:hidden relative">
@@ -181,23 +182,32 @@ export function DotsNav({ prototypeHref = "#", githubHref }: DotsNavProps) {
                       <span>View on GitHub</span>
                     </Link>
                   )}
-                  <Link
-                    href={prototypeHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
                     role="menuitem"
                     className="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
-                    onClick={() => setCtaOpen(false)}
+                    onClick={() => {
+                      setCtaOpen(false);
+                      setPrototypeLightboxOpen(true);
+                    }}
                   >
                     <span aria-hidden>↗</span>
                     <span>Open prototype</span>
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
           </div>
         )}
       </div>
+      {prototypeHref !== "#" && (
+        <PrototypeLightbox
+          open={prototypeLightboxOpen}
+          onClose={() => setPrototypeLightboxOpen(false)}
+          src={prototypeHref}
+          title="Content Engine prototype"
+        />
+      )}
     </nav>
   );
 }
