@@ -25,10 +25,10 @@ export default function Home() {
             A content model designed for multi-channel transformation.
           </p>
           <p className="text-lg text-gray-600 max-w-2xl mb-4 leading-relaxed">
-            💡 <strong className="text-foreground">The idea:</strong> Structure course content once, so designers receive clear, reusable building blocks tailored to each medium and purpose.
+            💡 <strong className="text-foreground">The idea:</strong> Structure course content once, so designers receive clear, reusable building blocks tailored to their medium, whether a marketing document, a lead magnet, or a video script.
           </p>
           <p className="text-lg text-gray-600 max-w-2xl mb-10 leading-relaxed">
-            📐 <strong className="text-foreground">Prototype:</strong> Course pages are treated as the source of truth. Content is extracted, structured into defined components, and transformed into three whitepaper variants — lead magnet, product deep dive, and update version — with basic tone and format validation applied per version.
+            📐 <strong className="text-foreground">Prototype:</strong> Website course pages serve as the source of truth. Content is extracted and structured into predefined document schemas, then transformed into three document variants, including a lead magnet PDF, with tone and format review suggestions generated per version.
           </p>
           <ul className="flex flex-wrap gap-4 mb-10 text-foreground font-medium">
             <li className="flex items-center gap-2">

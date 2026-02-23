@@ -192,10 +192,14 @@ export function IdeaTabs() {
         {activeTab === "vision" && (
           <>
             <p className="mb-4">
-              The vision is to organise course content in a way that enables automated design preparation.
+              The vision is to structure course content so it can move smoothly between formats.
+            </p>
+            <p className="mb-4">
+              The same course data can become a lead magnet, a detailed document, a script, or a promotional piece — without being reshaped from scratch each time.
             </p>
             <p>
-              When content is structured correctly, it can populate templates, adapt to formats, and maintain consistency across outputs without repeated manual restructuring.
+              Consistency comes from structure.<br />
+              Creativity builds on top.
             </p>
           </>
         )}
