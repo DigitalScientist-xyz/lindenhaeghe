@@ -1,5 +1,92 @@
 # Deploy Whitepaper Factory minisite to VPS (lindenhaeghe.troycollins.nl)
 
+---
+
+## Step-by-step (do in order)
+
+Your VPS already has **port 3000** (portfolio), **3003**, **3004** in use. This app will use **port 3010** (free).
+
+### Step 1 – Clone the repo (from `/var/www`)
+
+If the repo is **private**, create a GitHub Personal Access Token (Settings → Developer settings → Personal access tokens, scope `repo`), then run (replace `YOUR_TOKEN` with the token):
+
+```bash
+cd /var/www
+git clone https://YOUR_TOKEN@github.com/DigitalScientist-xyz/lindenhaeghe.git
+cd lindenhaeghe
+```
+
+If the repo is **public**, you can use:
+
+```bash
+cd /var/www
+git clone https://github.com/DigitalScientist-xyz/lindenhaeghe.git
+cd lindenhaeghe
+```
+
+### Step 2 – Install deps and build
+
+```bash
+npm ci
+npm run build
+```
+
+### Step 3 – Start the app with PM2 (port 3010)
+
+```bash
+pm2 start ecosystem.config.cjs
+pm2 save
+pm2 startup
+```
+
+(Run the command that `pm2 startup` prints so it starts on reboot.)
+
+### Step 4 – Nginx config for lindenhaeghe.troycollins.nl
+
+```bash
+sudo nano /etc/nginx/sites-available/lindenhaeghe.troycollins.nl
+```
+
+Paste this (app is on port 3010):
+
+```nginx
+server {
+    listen 80;
+    server_name lindenhaeghe.troycollins.nl;
+    location / {
+        proxy_pass http://127.0.0.1:3010;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Save (Ctrl+O, Enter, Ctrl+X), then:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/lindenhaeghe.troycollins.nl /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Step 5 – HTTPS (optional)
+
+```bash
+sudo certbot --nginx -d lindenhaeghe.troycollins.nl
+```
+
+### Step 6 – DNS
+
+In your DNS for **troycollins.nl**, add an **A** record: name **lindenhaeghe**, value = your VPS IP. Wait a few minutes, then open **https://lindenhaeghe.troycollins.nl**.
+
+---
+
 ## 1. DNS (do this first)
 
 In the DNS for **troycollins.nl**, add a record for the subdomain:
@@ -66,9 +153,21 @@ npm ci
 npm run build
 ```
 
-### Run with PM2 (recommended)
+### Pick a free port
 
-This app runs on **port 3001** (so it doesn’t clash with anything on 3000).
+With multiple sites, 3000/3001 may already be in use. Check what’s listening:
+
+```bash
+ss -tlnp | grep LISTEN
+# or: netstat -tlnp | grep LISTEN
+```
+
+Pick a free port (e.g. **3010**, 3020, 3030, 3847). The app defaults to **3010** in `ecosystem.config.cjs`. To use another port:
+
+1. Edit `ecosystem.config.cjs`: set `PORT: "3020"` (or your choice) in the `env` object.
+2. In the Nginx config below, use the same port in `proxy_pass` (e.g. `http://127.0.0.1:3020;`).
+
+### Run with PM2 (recommended)
 
 ```bash
 sudo npm install -g pm2
@@ -77,12 +176,12 @@ pm2 save
 pm2 startup   # follow the command it prints to enable on boot
 ```
 
-Or without the config file: `PORT=3001 pm2 start npm --name "lindenhaeghe" -- start`
+Or with a one-off port: `PORT=3020 pm2 start npm --name "lindenhaeghe" -- start`
 
 ### Or run without PM2 (foreground)
 
 ```bash
-PORT=3001 npm start
+PORT=3010 npm start
 ```
 
 ---
@@ -102,14 +201,14 @@ Create a site config:
 sudo nano /etc/nginx/sites-available/lindenhaeghe.troycollins.nl
 ```
 
-Paste (replace `YOUR_VPS_IP` if you use it in `server_name`):
+Paste. Use the **same port** you set for this app (default 3010):
 
 ```nginx
 server {
     listen 80;
     server_name lindenhaeghe.troycollins.nl;
     location / {
-        proxy_pass http://127.0.0.1:3001;
+        proxy_pass http://127.0.0.1:3010;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -160,7 +259,7 @@ pm2 restart lindenhaeghe   # or: pm2 restart ecosystem.config.cjs
 - [ ] DNS: `lindenhaeghe.troycollins.nl` → VPS IP (or CNAME)
 - [ ] VPS: Node 18+, clone repo, `npm ci && npm run build`
 - [ ] PM2: `pm2 start npm --name "lindenhaeghe" -- start` and `pm2 save` / `pm2 startup`
-- [ ] Nginx: config for `lindenhaeghe.troycollins.nl` → `http://127.0.0.1:3001`, enable and reload
+- [ ] Nginx: config for `lindenhaeghe.troycollins.nl` → `http://127.0.0.1:YOUR_PORT` (e.g. 3010), enable and reload
 - [ ] HTTPS: `certbot --nginx -d lindenhaeghe.troycollins.nl`
 
 After DNS propagates (a few minutes), open **https://lindenhaeghe.troycollins.nl** in a browser.

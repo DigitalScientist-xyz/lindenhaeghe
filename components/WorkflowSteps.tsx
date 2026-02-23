@@ -4,36 +4,108 @@ import { useState } from "react";
 import { FadeIn } from "@/components/ScrollSection";
 import { motion, AnimatePresence } from "framer-motion";
 
-const STEPS = [
+type StepBase = {
+  label: string;
+  desc: string;
+  vision: string;
+  prototype: string;
+  example?: string | null;
+  exampleAfter?: string;
+  exampleIntro?: string;
+  exampleList?: string[];
+  exampleBlocks?: { title: string; items: string[] }[];
+};
+
+const STEPS: StepBase[] = [
   {
-    label: "Course Page",
-    desc: "Source content from existing course or label materials.",
-    detail:
-      "The pipeline starts from existing Certify360 course or label content—PDFs, CMS pages, or structured data. No manual copy-paste; the system ingests the same sources that marketing and design already use, so the whitepaper stays aligned with approved materials.",
+    label: "Source of Truth",
+    desc: "Where official course content resides.",
+    vision:
+      "The starting point is wherever the official source of truth for course content resides. This may include CMS systems, internal databases, or validated repositories containing full course material, compliance notes, pricing, and detailed specifications.",
+    prototype:
+      "The current prototype uses publicly available course product pages as the source of truth and extracts their content.",
+    example:
+      "A pension course page contains the title, learning objectives, key topics, price, duration, and disclaimers. Instead of copying this manually, the system treats that page as the authoritative content source.",
   },
   {
-    label: "Extract",
-    desc: "Deterministic extraction of facts and structure.",
-    detail:
-      "A Python-based extractor pulls out key facts, section headings, learning outcomes, and claims in a structured way. This step is deterministic: no LLM guessing. What goes into the next stage is a clean, factual skeleton—reducing the risk of hallucination when the LLM writes the narrative.",
+    label: "Structuring Layer",
+    desc: "Content organised into reusable components.",
+    vision:
+      "Course content is organised into clearly defined components that are independent of layout or format. These components become reusable building blocks.",
+    prototype:
+      "The prototype extracts and reorganises website content into a structured dataset.",
+    example: null,
+    exampleList: [
+      "Learning objectives",
+      "Key topics",
+      "Benefits",
+      "Compliance notes",
+      "Target audience",
+      "Pricing",
+    ],
+    exampleAfter:
+      "These blocks can now be reused in any format without reshaping the content.",
   },
   {
-    label: "Generate",
-    desc: "LLM produces draft narrative from extracted data.",
-    detail:
-      "The LLM receives the extracted structure and facts as input and produces fluent, on-brand prose for each section. Prompts and templates constrain tone and format. Because generation is grounded in extracted content, the draft stays close to the source while reading like a finished whitepaper.",
+    label: "Format Transformation",
+    desc: "Structured content adapted per medium.",
+    vision:
+      "Structured content is adapted to fit the purpose, audience, and medium. Each format follows its own tone, structure, and emphasis.",
+    prototype:
+      "The structured dataset is transformed into three whitepaper variants — lead magnet, product deep dive, and update version — with tone and structure adjusted per version.",
+    example: null,
+    exampleIntro: "The same course information can:",
+    exampleList: [
+      "Be expanded into a detailed whitepaper section",
+      "Be rewritten as a conversational video script",
+      "Be condensed into a social media post",
+      "Be reframed into a sales-focused summary",
+    ],
+    exampleAfter:
+      "The core facts remain aligned with the source. The structure, tone, and emphasis adapt to the medium.",
   },
   {
-    label: "Quality Guardian",
-    desc: "AI + rules check compliance and consistency.",
-    detail:
-      "Before export, an automated layer checks the draft against rules: claim accuracy, required sections, terminology, and compliance flags. Issues are flagged for human review. This keeps quality consistent and catches problems early instead of in final review.",
+    label: "Validation Layer",
+    desc: "AI checks tone, structure, compliance.",
+    vision:
+      "An AI validation agent checks outputs based on the requirements of the intended medium, including tone, structure, compliance elements, and completeness.",
+    prototype:
+      "The prototype includes a basic validation step to review generated output.",
+    example: null,
+    exampleBlocks: [
+      {
+        title: "For a whitepaper, the validation may check:",
+        items: [
+          "Are all learning objectives included?",
+          "Is the tone professional and aligned with the brand?",
+          "Are required disclaimers present?",
+        ],
+      },
+      {
+        title: "For a video script, it might check:",
+        items: [
+          "Is the language conversational?",
+          "Is the script length appropriate?",
+        ],
+      },
+    ],
   },
   {
-    label: "Template Export",
-    desc: "Layout-ready output for design tools.",
-    detail:
-      "The approved draft is exported into a template format that design tools can use—structured sections, placeholders, and style hints. Designers can focus on layout and visuals instead of rebuilding the document from scratch. Template versioning allows controlled updates across labels.",
+    label: "Multi Format Export",
+    desc: "Export into template-ready formats.",
+    vision:
+      "Structured content can be exported into template-ready formats compatible with different design and production tools.",
+    prototype:
+      "The prototype supports PDF export only.",
+    example: null,
+    exampleList: [
+      "A Figma layout template",
+      "A video scripting tool",
+      "An audio narration workflow",
+      "A brochure template",
+    ],
+    exampleAfter:
+      "Because the structure is standardised, new tools can be connected without rebuilding the content logic.",
   },
 ];
 
@@ -48,8 +120,8 @@ export function WorkflowSteps() {
             <button
               type="button"
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className={`w-full text-left border rounded-sm p-4 h-full bg-white transition-colors hover:border-accent/50 ${
-                openIndex === i ? "border-accent ring-1 ring-accent/20" : "border-gray-200"
+              className={`w-full text-left border rounded-sm p-4 h-full bg-surface transition-colors hover:border-accent/50 ${
+                openIndex === i ? "border-accent ring-1 ring-accent/20" : "border-gray-300"
               }`}
             >
               <div className="text-xs text-accent font-medium mb-1">
@@ -58,7 +130,7 @@ export function WorkflowSteps() {
               <div className="font-medium text-foreground mb-2">
                 {step.label}
               </div>
-              <p className="text-sm text-gray-500">{step.desc}</p>
+              <p className="text-sm text-gray-600">{step.desc}</p>
               <p className="text-xs text-accent mt-2">
                 {openIndex === i ? "Click to collapse ▲" : "Click for more ▼"}
               </p>
@@ -77,28 +149,74 @@ export function WorkflowSteps() {
             transition={{ duration: 0.25 }}
             className="overflow-hidden mb-8"
           >
-            <div className="border border-gray-200 rounded-sm p-6 bg-accent-muted/50 border-accent/20">
-              <h3 className="font-medium text-foreground mb-2">
+            <div className="border border-gray-300 rounded-sm p-6 bg-accent-muted/50 border-accent/20">
+              <h3 className="font-medium text-foreground mb-6">
                 {STEPS[openIndex].label} — in detail
               </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {STEPS[openIndex].detail}
-              </p>
+              <div className="space-y-6 text-gray-700 leading-relaxed">
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-2">Vision</h4>
+                  <p>{STEPS[openIndex].vision}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-2">Prototype</h4>
+                  <p>{STEPS[openIndex].prototype}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-2">Example</h4>
+                  {STEPS[openIndex].exampleBlocks ? (
+                    <div className="space-y-4">
+                      {STEPS[openIndex].exampleBlocks!.map((block, bi) => (
+                        <div key={bi}>
+                          <p className="font-medium text-foreground mb-2">{block.title}</p>
+                          <ul className="list-none space-y-1">
+                            {block.items.map((item, ii) => (
+                              <li key={ii} className="flex gap-2">
+                                <span className="text-accent shrink-0">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  ) : STEPS[openIndex].exampleList ? (
+                    <>
+                      {STEPS[openIndex].exampleIntro && (
+                        <p className="font-medium text-foreground mb-2">{STEPS[openIndex].exampleIntro}</p>
+                      )}
+                      <ul className="list-none space-y-1 mb-3">
+                        {STEPS[openIndex].exampleList!.map((item, ii) => (
+                          <li key={ii} className="flex gap-2">
+                            <span className="text-accent shrink-0">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {STEPS[openIndex].exampleAfter && (
+                        <p>{STEPS[openIndex].exampleAfter}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p>{STEPS[openIndex].example}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-center gap-2 text-gray-400 text-sm overflow-x-auto pb-2">
-        <span>Course Page</span>
+      <div className="flex items-center justify-center gap-2 text-gray-500 text-sm overflow-x-auto pb-2 flex-wrap">
+        <span>Source of Truth</span>
         <span>→</span>
-        <span>Extract</span>
+        <span>Structuring Layer</span>
         <span>→</span>
-        <span>Generate</span>
+        <span>Format Transformation</span>
         <span>→</span>
-        <span>Quality Guardian</span>
+        <span>Validation Layer</span>
         <span>→</span>
-        <span>Template Export</span>
+        <span>Multi Format Export</span>
       </div>
     </>
   );

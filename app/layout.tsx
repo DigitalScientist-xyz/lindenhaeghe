@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Whitepaper Factory – AI Support for Certify360 Design Teams",
+  title: "Content Engine for Certify360 – AI Support for Design Teams",
   description:
-    "From course page to compliant whitepaper in minutes. AI-assisted workflow for marketing and design teams within Certify360.",
+    "Structure course content once; generate format-ready drafts with built-in quality checks. AI-assisted workflow for marketing and design teams within Certify360.",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased bg-white text-[#171717]`}>
+      <body className={`${inter.variable} font-sans antialiased bg-surface text-[#171717]`}>
         {children}
       </body>
     </html>
