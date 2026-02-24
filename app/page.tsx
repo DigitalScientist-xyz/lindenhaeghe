@@ -19,10 +19,10 @@ export default function Home() {
       >
         <div className="max-w-4xl">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground mb-6">
-            Content Engine for Certify360
+            Structured Content Intelligence Layer
           </h1>
           <p className="text-xl sm:text-2xl text-gray-700 mb-8 max-w-2xl">
-            A content model designed for multi-channel transformation.
+            Transforming course content into validated, reusable, multi-format assets.
           </p>
           <p className="text-lg text-gray-600 max-w-2xl mb-4 leading-relaxed">
             💡 <strong className="text-foreground">The idea:</strong> Structure course content once, so designers receive clear, reusable building blocks tailored to their medium, whether a marketing document, a lead magnet, or a video script.
@@ -87,7 +87,7 @@ export default function Home() {
       >
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-12">
-            Structured Content Transformation Workflow
+          Structured Content Intelligence Layer Workflow
           </h2>
           <p className="text-gray-700 mb-8 max-w-2xl">
             Click any step to see Vision, Prototype, and Example.
